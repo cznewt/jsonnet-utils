@@ -1,0 +1,6 @@
+.vscode
+venv
+*.pyc
+jsonnet_utils.egg-info
+dist
+build
