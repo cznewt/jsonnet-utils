@@ -11,8 +11,9 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        jsonnet-grafana-dashboards-convert=jsonnet_utils.cli:dashboards_convert
-        jsonnet-grafana-dashboards-info=jsonnet_utils.cli:dashboards_info
-        jsonnet-grafana-dashboards-test=jsonnet_utils.cli:dashboards_test
+        jsonnet-utils-grafana-metrics=jsonnet_utils.cli:dashboard_metrics
+        jsonnet-utils-grafana-convert=jsonnet_utils.cli:dashboard_convert
+        jsonnet-utils-grafana-info=jsonnet_utils.cli:dashboard_info
+        jsonnet-utils-grafana-test=jsonnet_utils.cli:dashboard_test
     ''',
 )
