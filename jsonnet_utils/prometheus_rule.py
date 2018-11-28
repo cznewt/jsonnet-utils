@@ -75,11 +75,11 @@ def convert_rule_jsonnet(rule, source_path, build_path):
         output = subprocess.Popen("jsonnet fmt -n 2 --max-blank-lines 2 --string-style s --comment-style s -i " + build_file,
                                   shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.read().decode("utf-8")
         if 'ERROR' in output:
-            logging.info('Error `{}` converting rules file `{}/{}` to `{}`'.format(
+            logging.info('Error `{}` converting rules file `{}/{}` to `{}`.'.format(
                 output, source_path, rule['_filename'], build_file))
         else:
-            logging.info('Converted rules file `{}/{}` to `{}` ({} format)'.format(
-                source_path, rule['_filename'], build_file, format))
+            logging.info('Converted rules file `{}/{}` to `{}`.'.format(
+                source_path, rule['_filename'], build_file))
 
     return rule_str
 

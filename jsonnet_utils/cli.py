@@ -95,5 +95,5 @@ def rule_metrics(path):
 def rule_convert(source_path, build_path):
     """Convert Prometheus rule definitions to JSONNET format."""
     logging.info(
-        'Searching path `{}` for JSON dashboards to convert ...'.format(source_path))
+        'Searching path `{}` for YAML rule definitions to convert ...'.format(source_path))
     convert_rules(source_path, build_path)
