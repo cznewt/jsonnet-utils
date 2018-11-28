@@ -13,16 +13,16 @@ At the moment just a few utilities to work with Grafana dashboards
 jsonnet-grafana-dashboards-convert
 ----------------------------------
 
-Usage: jsonnet-grafana-dashboards-convert [OPTIONS]
+Convert JSON dashboards to JSONNET format.
 
-  Convert JSON dashboards to JSONNET format.
+Usage: ``jsonnet-grafana-dashboards-convert [OPTIONS]``
 
 Options:
 
-  --source-path TEXT  Path to search for the source JSON dashboards.
-  --build-path TEXT   Path to save converted JSONNET dashboards, none to print to console.
-  --format TEXT       Format of the dashboard: `grafonnet` or `grafana-builder`.
-  --layout TEXT       Format of the dashboard: `normal` (scheme 14) , `grid` (scheme 16).
+--source-path TEXT  Path to search for the source JSON dashboards.
+--build-path TEXT   Path to save converted JSONNET dashboards, none to print to console.
+--format TEXT       Format of the dashboard: `grafonnet` or `grafana-builder`.
+--layout TEXT       Format of the dashboard: `normal` (scheme 14) , `grid` (scheme 16).
 
 Example usage:
 
@@ -37,13 +37,13 @@ Example usage:
 jsonnet-grafana-dashboards-info
 -------------------------------
 
-Usage: jsonnet-grafana-dashboards-info [OPTIONS]
+Get info from Grafana JSON dashboards.
 
-  Get info from Grafana JSON dashboards.
+Usage: ``jsonnet-grafana-dashboards-info [OPTIONS]``
 
 Options:
 
-  --path TEXT  Path to search for the source JSON dashboards.
+--path TEXT  Path to search for the source JSON dashboards.
 
 Example usage:
 
@@ -96,15 +96,16 @@ Example usage:
 jsonnet-grafana-dashboards-test
 -------------------------------
 
-Usage: jsonnet-grafana-dashboards-test [OPTIONS]
+Test JSONNET formatted dashboards.
 
-  Test JSONNET formatted dashboards.
+Usage: ``jsonnet-grafana-dashboards-test [OPTIONS]``
+
 
 Options:
 
-  --path TEXT    Path to search for the source JSON dashboards.
-  --scheme TEXT  Scheme version of the dashboard: `16` is the current.
-  --layout TEXT  Format of the dashboard: `normal` (scheme 14) , `grid` (scheme 16).
+--path TEXT    Path to search for the source JSON dashboards.
+--scheme TEXT  Scheme version of the dashboard: `16` is the current.
+--layout TEXT  Format of the dashboard: `normal` (scheme 14) , `grid` (scheme 16).
 
 Example usage:
 
