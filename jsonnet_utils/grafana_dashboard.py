@@ -6,6 +6,8 @@ import glob
 import _jsonnet
 import logging
 import subprocess
+from .prometheus_rule import search_prometheus_metrics, metrics_rules
+
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
@@ -99,31 +101,6 @@ def print_dashboard_info(dashboard):
         print(line)
 
 
-def serch_prometheus_metrics(query):
-    keywords = ['(', ')', '-', '/', '*', '+', '-',
-                ',', '>', '<', '=', '^', '.', '"']
-    final_keywords = ['', 'sum', 'bool', 'rate', 'irate', 'count', 'avg', 'histogram_quantile',
-                      'max', 'min', 'time', 'topk', 'changes', 'label_replace']
-    query = query.replace("\n", ' ')
-    query = re.sub(r'[0-9]+e[0-9]+', '', query)
-    query = re.sub(r'\{.*\}', '', query)
-    query = re.sub(r'\[.*\]', '', query)
-    query = re.sub(r'\".*\"', '', query)
-    query = re.sub(r'by \(.*\)', '', query)
-    query = re.sub(r'without \(.*\)', '', query)
-    for keyword in keywords:
-        query = query.replace(keyword, ' ')
-    query = re.sub(r'[0-9]+ ', ' ', query)
-    query = re.sub(r' [0-9]+', ' ', query)
-    final_queries = []
-    query = query.replace("(", ' ')
-    raw_queries = query.split(' ')
-    for raw_query in raw_queries:
-        if raw_query.lower() not in final_keywords:
-            final_queries.append(raw_query)
-    return final_queries
-
-
 def print_dashboard_metrics(dashboard):
     output = ['']
     metrics = []
@@ -132,15 +109,13 @@ def print_dashboard_metrics(dashboard):
     for panel in dashboard.get('_panels', []):
         for target in panel.get('targets', []):
             if 'expr' in target:
-                queries = serch_prometheus_metrics(
+                queries = search_prometheus_metrics(
                     target['expr'].replace('\n', ' '))
                 #output.append('  - {}'.format(target['expr']))
                 metrics += queries
-
-    output.append('  metrics:')
     final_metrics = sorted(list(set(metrics)))
     for metric in final_metrics:
-        output.append('  - {}'.format(metric))
+        output.append('- {}'.format(metric))
     for line in output:
         print(line)
     return final_metrics
@@ -253,14 +228,21 @@ def metrics_dashboards(path):
         sum_metrics += board_metrics
     if len(board_files) > 0:
         sum_metrics = sorted(list(set(sum_metrics)))
-        output.append('')
-        output.append('complete-set:')
-        for metric in sum_metrics:
-            output.append('- {}'.format(metric))
-        for line in output:
-            print(line)
     else:
         logging.error('No dashboards found at given path!')
+    return sum_metrics
+
+
+def metrics_all(dashboard_path, rules_path):
+    output = []
+    metrics = metrics_rules(rules_path) + metrics_dashboards(dashboard_path)
+    sum_metrics = sorted(list(set(metrics)))
+    output.append('')
+    output.append('combined-metrics:')
+    for metric in sum_metrics:
+        output.append('- {}'.format(metric))
+    for line in output:
+        print(line)
 
 
 def convert_dashboards(source_path, build_path, format, layout):
