@@ -36,7 +36,7 @@ Example usage:
 
 Example result JSONNET definition:
 
-.. code:: yaml
+.. code::
 
     {                                                                                                                                                                                  
       prometheusAlerts+:: {                                                                                                                                                                                                                                                                                           
@@ -98,7 +98,7 @@ Example usage:
 
 Example result JSONNET definition:
 
-.. code:: json
+.. code::
 
 local grafana = import 'grafonnet/grafana.libsonnet';
     local dashboard = grafana.dashboard;
