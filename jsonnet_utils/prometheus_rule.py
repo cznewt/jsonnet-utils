@@ -22,7 +22,7 @@ PROMETHEUS_RECORD_RULES = '''
 def parse_rules(rules_file):
     with open(rules_file) as f:
         if rules_file.endswith('.yaml') or rules_file.endswith('.yml'):
-            rule = yaml.loads(f)
+            rule = yaml.load(f)
         else:
             rule = json.load(f)
     rule['_filename'] = os.path.basename(rules_file)
