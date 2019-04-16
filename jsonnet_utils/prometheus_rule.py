@@ -1,5 +1,6 @@
 
 import json
+import yaml
 import re
 import os
 import glob
@@ -20,7 +21,10 @@ PROMETHEUS_RECORD_RULES = '''
 
 def parse_rules(rules_file):
     with open(rules_file) as f:
-        rule = json.load(f)
+        if rules_file.endswith('.yaml') or rules_file.endswith('.yml'):
+            rule = yaml.loads(f)
+        else:
+            rule = json.load(f)
     rule['_filename'] = os.path.basename(rules_file)
     return rule
 
