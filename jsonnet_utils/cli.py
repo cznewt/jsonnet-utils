@@ -60,15 +60,16 @@ def dashboard_metrics(path):
 
 
 @click.command()
-@click.option('--dashboard-path', default='./data', help='Path to search for the Grafana JSON dashboards.')
-@click.option('--rules-path', default='./data', help='Path to search for the Prometheus YAML rules.')
-def all_metrics(dashboard_path, rules_path):
+@click.option('--dashboard-path', default='./data/grafana', help='Path to search for the Grafana JSON dashboards.')
+@click.option('--rules-path', default='./data/prometheus', help='Path to search for the Prometheus YAML rules.')
+@click.option('--output', default='console', help='Type of output [console/json]')
+def all_metrics(dashboard_path, rules_path, output):
     """Get metric names from Grafana JSON dashboard targets and Prometheus rules."""
     logging.info(
         'Searching path `{}` for JSON dashboards for metrics ...'.format(dashboard_path))
     logging.info(
         'Searching path `{}` for YAML rules for metrics ...'.format(rules_path))
-    metrics_all(dashboard_path, rules_path)
+    metrics_all(dashboard_path, rules_path, output)
 
 
 @click.command()

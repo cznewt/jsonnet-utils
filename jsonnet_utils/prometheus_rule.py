@@ -29,23 +29,31 @@ def parse_rules(rules_file):
     return rule
 
 
-def search_prometheus_metrics(query):
-    keywords = ['(', ')', '-', '/', '*', '+', '-',
+def search_prometheus_metrics(orig_query, debug=False):
+    keywords = ['(', ')', '-', '/', '*', '+', '-', '!',
                 ',', '>', '<', '=', '^', '.', '"']
-    final_keywords = ['', 'sum', 'bool', 'rate', 'irate',
-                      'count', 'avg', 'histogram_quantile',
+    final_keywords = ['', '0', 'sum', 'bool', 'rate', 'irate', 'sort',
+                      'count', 'avg', 'histogram_quantile', 'round',
                       'max', 'min', 'time', 'topk', 'changes',
                       'label_replace', 'delta', 'predict_linear',
-                      'increase', 'scalar', 'e']
-    query = query.replace("\n", ' ')
+                      'increase', 'scalar', 'e', 'or', 'absent']
+    if debug:
+        logging.info(query)
+    query = orig_query.replace("\n", ' ')
     query = re.sub(r'[0-9]+e[0-9]+', '', query)
     query = re.sub(r'\{.*\}', '', query)
     query = re.sub(r'\[.*\]', '', query)
     query = re.sub(r'\".*\"', '', query)
-    query = re.sub(r'by \(.*\)', '', query, flags=re.IGNORECASE)
-    query = re.sub(r'by\(.*\)', '', query, flags=re.IGNORECASE)
+    if debug:
+        logging.info(query)
+    query = re.sub(r'by \((\w|,| )+\)', '', query, flags=re.IGNORECASE)
+    query = re.sub(r'by\((\w|,| )+\)', '', query, flags=re.IGNORECASE)
+    query = re.sub(r'on \((\w|,| )+\)', '', query, flags=re.IGNORECASE)
+    query = re.sub(r'on\((\w|,| )+\)', '', query, flags=re.IGNORECASE)
     query = re.sub(r'without \(.*\)', '', query, flags=re.IGNORECASE)
     query = re.sub(r'without\(.*\)', '', query, flags=re.IGNORECASE)
+    if debug:
+        logging.info(query)
     for keyword in keywords:
         query = query.replace(keyword, ' ')
     query = re.sub(r'[0-9]+ ', ' ', query)
@@ -54,8 +62,10 @@ def search_prometheus_metrics(query):
     query = query.replace("(", ' ')
     raw_queries = query.split(' ')
     for raw_query in raw_queries:
-        if raw_query.lower() not in final_keywords:
-            final_queries.append(raw_query)
+        #if raw_query.strip() == '0':
+        #    logging.info(orig_query)
+        if raw_query.lower().strip() not in final_keywords:
+            final_queries.append(raw_query.lower().strip())
     return final_queries
 
 
@@ -127,6 +137,51 @@ def print_rule_metrics(rule):
     return final_metrics
 
 
+def data_rule_metrics(rule):
+    data = {'nodes': [], 'links': []}
+    for group in rule.get('groups', []):
+        for rul in group.get('rules', []):
+            metrics = []
+            if 'record' in rul:
+                name = rul['record']
+                kind = 'prometheus-record'
+            else:
+                name = rul['alert']
+                kind = 'prometheus-alert'
+            data['nodes'].append({
+                'id': name,
+                'type': kind,
+                'name': name,
+                'sources': [],
+                'targets': [],
+            })
+            data['links'].append({
+                'source': name,
+                'target': 'output',
+                'value': 10,
+            })
+            if 'expr' in rul:
+                #if name == 'node:node_disk_utilisation:avg_irate':
+                queries = search_prometheus_metrics(
+                    rul['expr'].replace('\n', ' '))
+                # output.append('  - {}'.format(rul['expr']))
+                metrics += list(set(queries))
+            for metric in metrics:
+                data['links'].append({
+                    'source': metric,
+                    'target': name,
+                    'value': 10,
+                })
+    return data
+
+    final_metrics = sorted(list(set(metrics)))
+    for metric in final_metrics:
+        output.append('- {}'.format(metric))
+    for line in output:
+        print(line)
+    return final_metrics
+
+
 def info_rules(path):
     rule_files = glob.glob('{}/*.yml'.format(path)) + \
         glob.glob('{}/*.yaml'.format(path))
@@ -137,15 +192,23 @@ def info_rules(path):
         logging.error('No rule definitions found at given path!')
 
 
-def metrics_rules(path):
+def metrics_rules(path, output='console'):
     rule_files = glob.glob('{}/*.yml'.format(path)) + \
         glob.glob('{}/*.yaml'.format(path))
-    metrics = []
-    for rule_file in rule_files:
-        rules = parse_rules(rule_file)
-        metrics += print_rule_metrics(rules)
-    if len(rule_files) == 0:
-        logging.error('No rules found at given path!')
+    if output == "console":
+        metrics = []
+        for rule_file in rule_files:
+            rules = parse_rules(rule_file)
+            metrics += print_rule_metrics(rules)
+        if len(rule_files) == 0:
+            logging.error('No rules found at given path!')
+    else:
+        metrics = {'nodes': [], 'links': []}
+        for rule_file in rule_files:
+            rules = parse_rules(rule_file)
+            board_metrics = data_rule_metrics(rules)
+            metrics['nodes'] += board_metrics['nodes']
+            metrics['links'] += board_metrics['links']
     return metrics
 
 

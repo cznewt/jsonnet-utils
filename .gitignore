@@ -4,3 +4,5 @@ venv
 jsonnet_utils.egg-info
 dist
 build
+data
+view/data*
