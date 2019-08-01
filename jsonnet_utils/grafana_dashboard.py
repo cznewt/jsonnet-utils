@@ -105,13 +105,11 @@ def print_dashboard_metrics(dashboard):
     output = ['']
     metrics = []
     output.append('{}:'.format(dashboard.get('_filename')))
-    #output.append('  expressions:')
     for panel in dashboard.get('_panels', []):
         for target in panel.get('targets', []):
             if 'expr' in target:
                 queries = search_prometheus_metrics(
                     target['expr'].replace('\n', ' '))
-                #output.append('  - {}'.format(target['expr']))
                 metrics += queries
     final_metrics = sorted(list(set(metrics)))
     for metric in final_metrics:
@@ -295,7 +293,6 @@ def metrics_all(dashboard_path, rules_path, output):
         rule_metrics = metrics_rules(rules_path, output)
         metrics['nodes'] += rule_metrics['nodes']
         metrics['links'] += rule_metrics['links']
-        # print(len(metrics['nodes']))
         metric_names = []
         new_metric_names = []
         final_map = {}
@@ -328,24 +325,22 @@ def metrics_all(dashboard_path, rules_path, output):
                 i += 1
             new_metric_names.append(node['id'])
         metrics['nodes'] = final_nodes
-        """
+        '''
         for link in metrics['links']:
             link['source'] = final_map[link['source']]
             link['target'] = final_map[link['target']]
             final_links.append(link)
         metrics['links'] = final_links
-        """
-        # print(len(metrics['nodes']))
-        # for link in metrics['links']:
-        #    metrics['nodes'][final_map[link['source']]]['sources'].append(link['target'])
-        #    metrics['nodes'][final_map[link['target']]]['targets'].append(link['source'])
+        '''
+        for link in metrics['links']:
+            metrics['nodes'][final_map[link['source']]]['sources'].append(link['target'])
+            metrics['nodes'][final_map[link['target']]]['targets'].append(link['source'])
 
         for node in metrics['nodes']:
-          #  if len(node['targets']) == 0 and len(node['sources']) == 0:
-            logging.info('{} {} S: {} T: {}'.format(
+            logging.debug('{} {} S: {} T: {}'.format(
                 node['type'], node['id'], node['sources'], node['targets']))
 
-        print(json.dumps(metrics))
+        return(json.dumps(metrics))
     else:
         out = []
         metrics = metrics_rules(rules_path) + \

@@ -1,3 +1,5 @@
 
 Click
-jsonnet
+jsonnet==0.12.1
+requests
+pyyaml
