@@ -6,3 +6,4 @@ dist
 build
 data
 view/data*
+scripts/*.py
