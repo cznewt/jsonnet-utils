@@ -21,6 +21,14 @@ test_queries = [
     'node:node_cpu_utilisation:avg1m{cluster_name="$cluster"} * node:node_num_cpu:sum{cluster_name="$cluster"} / scalar(sum(node:node_num_cpu:sum{cluster_name="$cluster"}))',
     'sum(cluster_services:healthy_total{cluster_name=~"^gc[0-9].*"}) by (cluster_name)',
     'max(node_load1{job="kubernetes-node-exporter", cluster_name="$cluster", instance="$instance"})',
+    '''
+        sum(
+          label_replace(
+            namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{%(clusterLabel)s="$cluster", namespace="$namespace"},
+            "pod", "$1", "pod_name", "(.*)"
+          ) * on(namespace,pod) group_left(workload, workload_type) mixin_pod_workload{%(clusterLabel)s="$cluster", namespace="$namespace", workload="$workload", workload_type="$type"}
+        ) by (pod)
+    ''',
 ]
 
 for test_query in test_queries:

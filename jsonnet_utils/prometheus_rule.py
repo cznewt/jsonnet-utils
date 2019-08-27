@@ -41,7 +41,7 @@ def split_by_keyword(query, split_keywords, level=0):
 
 
 def search_prometheus_metrics(orig_query, debug=False):
-    split_keywords = [ ">", "<", " or ", " and "]
+    split_keywords = [ ">", "<", " or ", " and ", " group_left ", " group_right "]
     keywords = ["-", "/", "(", ")", "!", ",", "^", ".", '"', "=", "*", "+"]
     final_keywords = [
         "0",
@@ -71,9 +71,10 @@ def search_prometheus_metrics(orig_query, debug=False):
     query = orig_query.replace("\n", " ")
     query = re.sub(r"[0-9]+e[0-9]+", "", query)
     query = query.replace(' [0-9]+ ', '')
-    #query = re.sub(r"\{.*\}", "", query)
-    #query = re.sub(r"\[.*\]", "", query)
-    #query = re.sub(r"\".*\"", "", query)
+    query = re.sub(r"group_left \((\w|,| )+\)", " group_left ", query, flags=re.IGNORECASE)
+    query = re.sub(r"group_left\((\w|,| )+\)", " group_left ", query, flags=re.IGNORECASE)
+    query = re.sub(r"group_right \((\w|,| )+\)", " group_right ", query, flags=re.IGNORECASE)
+    query = re.sub(r"group_right\((\w|,| )+\)", " group_right ", query, flags=re.IGNORECASE)
 
     subqueries = split_by_keyword([query], split_keywords, 0)
     if debug:
