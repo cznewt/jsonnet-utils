@@ -142,7 +142,10 @@ def data_dashboard_metrics(dashboard):
     data["links"].append(
         {"source": dashboard.get("_filename"), "target": "output", "value": 10}
     )
-    for panel in dashboard.get("_panels", []):
+    panels = dashboard.get("_panels", [])
+    if len(panels) == 0:
+        panels = dashboard.get("panels", [])
+    for panel in panels:
         for target in panel.get("targets", []):
             if "expr" in target:
                 queries = search_prometheus_metrics(target["expr"].replace("\n", " "))
