@@ -41,8 +41,8 @@ def split_by_keyword(query, split_keywords, level=0):
 
 
 def search_prometheus_metrics(orig_query, debug=False):
-    split_keywords = [ ">", "<", " or ", " and ", " group_left ", " group_right "]
-    keywords = ["-", "/", "(", ")", "!", ",", "^", ".", '"', "=", "*", "+"]
+    split_keywords = ["+", "-", "*", "/", ">", "<", " or ", " and ", " group_left ", " group_right "]
+    keywords = ["+", "-", "*", "/", "(", ")", "!", ",", "^", ".", '"', "="]
     final_keywords = [
         "0",
         "sum",

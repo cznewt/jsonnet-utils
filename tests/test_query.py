@@ -15,6 +15,7 @@ logging.basicConfig(
     ])
 
 test_queries = [
+    'sum(rate(test_latency_seconds_sum{kubernetes_name=\"service\"}[1m])) / sum(rate(test_latency_seconds_count{kubernetes_name=\"service\"}[1m]))'
     'ALERTS{alertstate="firing", cluster_name="$cluster_name"}',
     '(count(ALERTS{alertstate="firing", cluster_name="$cluster_name"}) by (cluster_name)) or (sum(up{job="federate", cluster_name="$cluster_name"}) by (cluster_name) - 1)',
     '1 - sum(:node_memory_MemFreeCachedBuffers:sum{cluster_name=~"$cluster_name"}) / sum(:node_memory_MemTotal:sum{cluster_name=~"$cluster_name"})',
