@@ -150,8 +150,8 @@ def search_prometheus_metrics(orig_query, debug=False):
 
 
     output = list(set(final_queries))
-    logging.info('Parsed query: ', orig_query)
-    logging.info('Found metrics: ', output)
+    logging.info('Parsed query: {}'.format(orig_query))
+    logging.info('Found metrics: {}'.format(output))
     return output
 
 def convert_rule_jsonnet(rule, source_path, build_path):
