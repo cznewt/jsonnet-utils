@@ -15,19 +15,20 @@ logging.basicConfig(
     ])
 
 test_queries = [
-    'sum(rate(test_latency_seconds_sum{kubernetes_name=\"service\"}[1m])) / sum(rate(test_latency_seconds_count{kubernetes_name=\"service\"}[1m]))'
-    'ALERTS{alertstate="firing", cluster_name="$cluster_name"}',
-    '(count(ALERTS{alertstate="firing", cluster_name="$cluster_name"}) by (cluster_name)) or (sum(up{job="federate", cluster_name="$cluster_name"}) by (cluster_name) - 1)',
-    '1 - sum(:node_memory_MemFreeCachedBuffers:sum{cluster_name=~"$cluster_name"}) / sum(:node_memory_MemTotal:sum{cluster_name=~"$cluster_name"})',
-    'node:node_cpu_utilisation:avg1m{cluster_name="$cluster"} * node:node_num_cpu:sum{cluster_name="$cluster"} / scalar(sum(node:node_num_cpu:sum{cluster_name="$cluster"}))',
+    '''
+        ALERTS{alertstate="firing", cluster="cluster"}
+    ''',
+    '(count(ALERTS{alertstate="firing", cluster_name="cluster}) by (cluster_name)) or (sum(up{job="federate", cluster_name="cluster}) by (cluster_name) - 1)',
+    '1 - sum(:node_memory_MemFreeCachedBuffers:sum{cluster_name=~"cluster}) / sum(:node_memory_MemTotal:sum{cluster_name=~"cluster})',
+    'node:node_cpu_utilisation:avg1m{cluster_name="cluster"} * node:node_num_cpu:sum{cluster_name="cluster"} / scalar(sum(node:node_num_cpu:sum{cluster_name="cluster"}))',
     'sum(cluster_services:healthy_total{cluster_name=~"^gc[0-9].*"}) by (cluster_name)',
-    'max(node_load1{job="kubernetes-node-exporter", cluster_name="$cluster", instance="$instance"})',
+    'max(node_load1{job="kubernetes-node-exporter", cluster_name="cluster", instance="instance"})',
     '''
         sum(
           label_replace(
-            namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{%(clusterLabel)s="$cluster", namespace="$namespace"},
+            namespace_pod_name_container_name:container_cpu_usage_seconds_total:sum_rate{label="cluster", namespace="$namespace"},
             "pod", "$1", "pod_name", "(.*)"
-          ) * on(namespace,pod) group_left(workload, workload_type) mixin_pod_workload{%(clusterLabel)s="$cluster", namespace="$namespace", workload="$workload", workload_type="$type"}
+          ) * on(namespace,pod) group_left(workload, workload_type) mixin_pod_workload{label="cluster", namespace="namespace", workload="workload", workload_type="type"}
         ) by (pod)
     ''',
 ]

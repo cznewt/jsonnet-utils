@@ -41,8 +41,8 @@ def split_by_keyword(query, split_keywords, level=0):
 
 
 def search_prometheus_metrics(orig_query, debug=False):
-    split_keywords = ["+", "-", "*", "/", ">", "<", " or ", " and ", " group_left ", " group_right "]
-    keywords = ["+", "-", "*", "/", "(", ")", "!", ",", "^", ".", '"', "="]
+    split_keywords = [" / ", " + ", " * ", " - ", "\n" ">", "<", " or ", " and ", " group_left ", " group_right ", " AND ", " OR ", " GROUP_LEFT ", " GROUP_RIGHT "]
+    keywords = ["-", "/", "(", ")", "!", ",", "^", ".", '"', "=", "*", "+", ">", "<", " instance ", " job ", " type ", " url ", "?:"]
     final_keywords = [
         "0",
         "sum",
@@ -103,7 +103,8 @@ def search_prometheus_metrics(orig_query, debug=False):
         "log2",
         "ln",
     ]
-    query = orig_query.replace("\n", " ")
+    query = orig_query
+     # .replace("\n", " ")
     query = re.sub(r"[0-9]+e[0-9]+", "", query)
     query = query.replace(' [0-9]+ ', '')
     query = re.sub(r"group_left \((\w|,| )+\)", " group_left ", query, flags=re.IGNORECASE)
@@ -147,8 +148,11 @@ def search_prometheus_metrics(orig_query, debug=False):
             if raw_query.strip() != "":
                 final_queries.append(raw_query.strip())
 
-    return list(set(final_queries))
 
+    output = list(set(final_queries))
+    logging.info('Parsed query: ', orig_query)
+    logging.info('Found metrics: ', output)
+    return output
 
 def convert_rule_jsonnet(rule, source_path, build_path):
     rule_lines = []
