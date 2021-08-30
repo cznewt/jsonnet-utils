@@ -261,9 +261,15 @@ def parse_dashboard(board_file):
     with open(board_file) as f:
         dashboard = json.load(f)
     panels = []
-    for row in dashboard["rows"]:
-        for panel in row["panels"]:
+    for row in dashboard.get("panels", []):
+        for panel in row.get("panels", []):
             panels.append(panel)
+
+    for row in dashboard.get("rows", []):
+        for panel in row.get("panels", []):
+            panels.append(panel)
+            for subpanel in panel.get("panels", []):
+                panels.append(subpanel)
     dashboard["_filename"] = os.path.basename(board_file)
     dashboard["_panels"] = panels
     return dashboard
