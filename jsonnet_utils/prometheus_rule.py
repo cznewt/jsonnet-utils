@@ -102,6 +102,12 @@ def search_prometheus_metrics(orig_query, debug=False):
         "log10",
         "log2",
         "ln",
+        "offset",
+        "s",
+        "m",
+        "d",
+        "w",
+        "y"
     ]
     query = orig_query
      # .replace("\n", " ")
