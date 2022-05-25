@@ -122,8 +122,8 @@ def print_dashboard_metrics(dashboard):
     final_metrics = sorted(list(set(metrics)))
     for metric in final_metrics:
         output.append("- {}".format(metric))
-    for line in output:
-        print(line)
+    #  for line in output:
+    #      print(line)
     return final_metrics
 
 
@@ -284,7 +284,7 @@ def info_dashboards(path):
     if len(board_files) == 0:
         logging.error("No dashboards found at given path!")
 
-    return '\n'.join(board_output)
+    return "\n".join(board_output)
 
 
 def metrics_dashboards(path, output="console"):
@@ -421,4 +421,3 @@ def test_dashboards(path):
         logging.info("Testing dashboard `{}` ... OK".format(dashboard["_filename"]))
     if len(board_files) == 0:
         logging.error("No dashboards found at given path!")
-

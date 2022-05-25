@@ -40,9 +40,45 @@ def split_by_keyword(query, split_keywords, level=0):
         return query
 
 
-def search_prometheus_metrics(orig_query, debug=False):
-    split_keywords = [" / ", " + ", " * ", " - ", "\n" ">", "<", " or ", " and ", " group_left ", " group_right ", " AND ", " OR ", " GROUP_LEFT ", " GROUP_RIGHT "]
-    keywords = ["-", "/", "(", ")", "!", ",", "^", ".", '"', "=", "*", "+", ">", "<", " instance ", " job ", " type ", " url ", "?:"]
+def search_prometheus_metrics(orig_query):
+    split_keywords = [
+        " / ",
+        " + ",
+        " * ",
+        " - ",
+        "\n",
+        ">",
+        "<",
+        " or ",
+        " and ",
+        " group_left ",
+        " group_right ",
+        " AND ",
+        " OR ",
+        " GROUP_LEFT ",
+        " GROUP_RIGHT ",
+    ]
+    keywords = [
+        "-",
+        "/",
+        "(",
+        ")",
+        "!",
+        ",",
+        "^",
+        ".",
+        '"',
+        "=",
+        "*",
+        "+",
+        ">",
+        "<",
+        " instance ",
+        " job ",
+        " type ",
+        " url ",
+        "?:",
+    ]
     final_keywords = [
         "0",
         "sum",
@@ -70,6 +106,7 @@ def search_prometheus_metrics(orig_query, debug=False):
         "min_over_time",
         "time",
         "topk",
+        "bottomk",
         "changes",
         "clamp_max",
         "clamp_min",
@@ -110,20 +147,28 @@ def search_prometheus_metrics(orig_query, debug=False):
         "y",
         "json",
         "$filter",
-        "|"
+        "|",
     ]
     query = orig_query
-     # .replace("\n", " ")
+    # .replace("\n", " ")
     query = re.sub(r"[0-9]+e[0-9]+", "", query)
-    query = query.replace(' [0-9]+ ', '')
-    query = re.sub(r"group_left \((\w|,| )+\)", " group_left ", query, flags=re.IGNORECASE)
-    query = re.sub(r"group_left\((\w|,| )+\)", " group_left ", query, flags=re.IGNORECASE)
-    query = re.sub(r"group_right \((\w|,| )+\)", " group_right ", query, flags=re.IGNORECASE)
-    query = re.sub(r"group_right\((\w|,| )+\)", " group_right ", query, flags=re.IGNORECASE)
+    query = query.replace(" [0-9]+ ", "")
+    query = re.sub(
+        r"group_left \((\w|,| )+\)", " group_left ", query, flags=re.IGNORECASE
+    )
+    query = re.sub(
+        r"group_left\((\w|,| )+\)", " group_left ", query, flags=re.IGNORECASE
+    )
+    query = re.sub(
+        r"group_right \((\w|,| )+\)", " group_right ", query, flags=re.IGNORECASE
+    )
+    query = re.sub(
+        r"group_right\((\w|,| )+\)", " group_right ", query, flags=re.IGNORECASE
+    )
 
     subqueries = split_by_keyword([query], split_keywords, 0)
-    if debug:
-        logging.info("Step 1: {}".format(query))
+
+    logging.debug("Step 1: {}".format(query))
     subquery_output = []
     for subquery in subqueries:
         subquery = re.sub(r"\{.*\}", "", subquery)
@@ -139,8 +184,7 @@ def search_prometheus_metrics(orig_query, debug=False):
         subquery_output.append(subquery)
     query = " ".join(subquery_output)
 
-    if debug:
-        logging.info("Step 2: {}".format(query))
+    logging.debug("Step 2: {}".format(query))
     for keyword in keywords:
         query = query.replace(keyword, " ")
     query = re.sub(r" [0-9]+ ", " ", query)
@@ -148,8 +192,8 @@ def search_prometheus_metrics(orig_query, debug=False):
     query = re.sub(r"^[0-9]+$", " ", query)
     query = query.replace("(", " ")
     final_queries = []
-    if debug:
-        logging.info("Step 3: {}".format(query))
+
+    logging.debug("Step 3: {}".format(query))
     raw_queries = query.split(" ")
     for raw_query in raw_queries:
         if raw_query.lower().strip() not in final_keywords:
@@ -157,11 +201,12 @@ def search_prometheus_metrics(orig_query, debug=False):
             if raw_query.strip() != "":
                 final_queries.append(raw_query.strip())
 
-
     output = list(set(final_queries))
-    logging.info('Parsed query: {}'.format(orig_query))
-    logging.info('Found metrics: {}'.format(output))
+
+    logging.debug("Parsed query: {}".format(orig_query))
+    logging.debug("Found metrics: {}".format(output))
     return output
+
 
 def convert_rule_jsonnet(rule, source_path, build_path):
     rule_lines = []
@@ -249,7 +294,7 @@ def print_rule_metrics(rule):
     for metric in final_metrics:
         output.append("- {}".format(metric))
     for line in output:
-        print(line)
+        logging.debug(line)
     return final_metrics
 
 
@@ -310,6 +355,7 @@ def metrics_rules(path, output="console"):
             metrics += print_rule_metrics(rules)
         if len(rule_files) == 0:
             logging.error("No rules found at given path!")
+        logging.info(metrics)
     else:
         metrics = {"nodes": [], "links": []}
         for rule_file in rule_files:
@@ -330,4 +376,3 @@ def convert_rules(source_path, build_path):
 
     if len(rule_files) == 0:
         logging.error("No rules found at given path!")
-
