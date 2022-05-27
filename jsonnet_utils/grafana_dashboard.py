@@ -5,9 +5,8 @@ import glob
 import _jsonnet
 import logging
 import subprocess
-from .prometheus_rule import search_prometheus_metrics, metrics_rules
-
-from .utils import parse_yaml
+from .prometheus_rule import metrics_rules
+from .utils import search_prometheus_metrics
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
@@ -117,7 +116,7 @@ def print_dashboard_metrics(dashboard):
     for panel in dashboard.get("_panels", []):
         for target in panel.get("targets", []):
             if "expr" in target:
-                queries = search_prometheus_metrics(target["expr"].replace("\n", " "))
+                queries = search_prometheus_metrics(target["expr"])
                 metrics += queries
     final_metrics = sorted(list(set(metrics)))
     for metric in final_metrics:
@@ -148,7 +147,7 @@ def data_dashboard_metrics(dashboard):
     for panel in panels:
         for target in panel.get("targets", []):
             if "expr" in target:
-                queries = search_prometheus_metrics(target["expr"].replace("\n", " "))
+                queries = search_prometheus_metrics(target["expr"])
                 metrics += queries
     final_metrics = sorted(list(set(metrics)))
     for metric in final_metrics:
