@@ -399,8 +399,8 @@ def metrics_all(dashboard_path, rules_path, output):
         out.append("combined-metrics:")
         for metric in sum_metrics:
             out.append("- {}".format(metric))
-        for line in out:
-            print(line)
+        # for line in out:
+        #    print(line)
 
 
 def convert_dashboards(source_path, build_path, format, layout):
