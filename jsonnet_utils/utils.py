@@ -10,12 +10,14 @@ split_keywords = [
     ">",
     "<",
     " or ",
-    " and ",
-    " group_left ",
-    " group_right ",
-    " AND ",
     " OR ",
+    " and ",
+    " AND ",
+    " unless "
+    " UNLESS "
+    " group_left ",
     " GROUP_LEFT ",
+    " group_right ",
     " GROUP_RIGHT ",
 ]
 keywords = [
@@ -46,6 +48,7 @@ final_keywords = [
     "abs",
     "absent",
     "absent_over_time",
+    "and",
     "acos",
     "acosh",
     "asin",
@@ -75,6 +78,9 @@ final_keywords = [
     "e",
     "exp",
     "floor",
+    "group_left",
+    "group_right",
+    "h",
     "histogram_quantile",
     "holt_winters",
     "hour",
@@ -97,6 +103,7 @@ final_keywords = [
     "minute",
     "month",
     "offset",
+    "or",
     "pi",
     "predict_linear",
     "present_over_time",
@@ -128,6 +135,7 @@ final_keywords = [
     "y",
     "year",
     "|",
+    "$",
 ]
 
 
