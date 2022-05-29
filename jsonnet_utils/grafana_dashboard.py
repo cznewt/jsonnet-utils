@@ -287,7 +287,7 @@ def info_dashboards(path):
         dashboard = parse_dashboard(board_file)
         board_output.append(print_dashboard_info(dashboard))
     if len(board_files) == 0:
-        logging.error("No dashboards found at given path!")
+        logging.error("No dashboards found at path {}!".format(path))
     return "\n".join(board_output)
 
 
@@ -304,7 +304,7 @@ def metrics_dashboards(path, output="console"):
         if len(board_files) > 0:
             sum_metrics = sorted(list(set(sum_metrics)))
         else:
-            logging.error("No dashboards found at given path!")
+            logging.error("No dashboards found at path {}!".format(path))
     else:
         sum_metrics = {"nodes": [], "links": []}
         if board_files == None:
@@ -419,7 +419,7 @@ def convert_dashboards(source_path, build_path, format, layout):
         convert_dashboard_jsonnet(dashboard, format, source_path, build_path)
 
     if len(board_files) == 0:
-        logging.error("No dashboards found at given path!")
+        logging.error("No dashboards found at path {}!".format(source_path))
 
 
 def test_dashboards(path):
@@ -428,4 +428,4 @@ def test_dashboards(path):
         dashboard = parse_dashboard(board_file)
         logging.info("Testing dashboard `{}` ... OK".format(dashboard["_filename"]))
     if len(board_files) == 0:
-        logging.error("No dashboards found at given path!")
+        logging.error("No dashboards found at path {}!".format(path))

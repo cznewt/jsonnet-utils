@@ -77,7 +77,6 @@ def convert_rule_jsonnet(rule, source_path, build_path):
 def print_rule_info(rule):
     output = [""]
     output.append("### File {}".format(rule.get("_filename")))
-    # output.append("  groups:")
     for group in rule.get("groups", []):
         output.append("\n#### Group {}\n".format(group["name"]))
 
@@ -89,9 +88,7 @@ def print_rule_info(rule):
             if "expr" in rul:
                 output.append(
                     "- **{}**: ({})".format(
-                        "**, **".join(
-                            search_prometheus_metrics(rul["expr"])
-                        ),
+                        "**, **".join(search_prometheus_metrics(rul["expr"])),
                         rul["expr"].replace("\n", ""),
                         kind,
                     )
@@ -107,7 +104,6 @@ def print_rule_metrics(rule):
         for rul in group.get("rules", []):
             if "expr" in rul:
                 queries = search_prometheus_metrics(rul["expr"])
-                # output.append('  - {}'.format(rul['expr']))
                 metrics += queries
 
     final_metrics = sorted(list(set(metrics)))
@@ -159,7 +155,7 @@ def info_rules(path):
         rules = parse_rules(rule_file)
         rule_output.append(print_rule_info(rules))
     if len(rule_files) == 0:
-        logging.error("No rule definitions found at given path!")
+        logging.error("No rule definitions found at path {}!".format(path))
 
     return "\n".join(rule_output)
 
@@ -176,7 +172,7 @@ def metrics_rules(path, output="console"):
             rules = parse_rules(rule_file)
             metrics += print_rule_metrics(rules)
         if len(rule_files) == 0:
-            logging.error("No rules found at given path!")
+            logging.error("No rules found at path {}!".format(path))
         logging.info(metrics)
     else:
         metrics = {"nodes": [], "links": []}
@@ -199,4 +195,4 @@ def convert_rules(source_path, build_path):
         convert_rule_jsonnet(rule, source_path, build_path)
 
     if len(rule_files) == 0:
-        logging.error("No rules found at given path!")
+        logging.error("No rules found at path {}!".format(source_path))
