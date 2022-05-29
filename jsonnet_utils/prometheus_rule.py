@@ -170,6 +170,8 @@ def metrics_rules(path, output="console"):
     )
     if output == "console":
         metrics = []
+        if rule_files == None:
+            return metrics
         for rule_file in rule_files:
             rules = parse_rules(rule_file)
             metrics += print_rule_metrics(rules)
@@ -178,6 +180,8 @@ def metrics_rules(path, output="console"):
         logging.info(metrics)
     else:
         metrics = {"nodes": [], "links": []}
+        if rule_files == None:
+            return metrics
         for rule_file in rule_files:
             rules = parse_rules(rule_file)
             board_metrics = data_rule_metrics(rules)

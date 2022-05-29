@@ -260,10 +260,16 @@ def parse_dashboard(board_file):
     with open(board_file) as f:
         dashboard = json.load(f)
     panels = []
+    if dashboard == None:
+        dashboard["_filename"] = os.path.basename(board_file)
+        dashboard["_panels"] = panels
+        return dashboard
     for row in dashboard.get("panels", []):
         for panel in row.get("panels", []):
             panels.append(panel)
-
+    if dashboard.get("rows", []) == None:
+        logging.error("Dashboard {} has Null row".format(board_file))
+        dashboard["rows"] = []
     for row in dashboard.get("rows", []):
         for panel in row.get("panels", []):
             panels.append(panel)
@@ -282,13 +288,14 @@ def info_dashboards(path):
         board_output.append(print_dashboard_info(dashboard))
     if len(board_files) == 0:
         logging.error("No dashboards found at given path!")
-
     return "\n".join(board_output)
 
 
 def metrics_dashboards(path, output="console"):
     board_files = glob.glob("{}/*.json".format(path))
     if output == "console":
+        if board_files == None:
+            return sum_metrics
         sum_metrics = []
         for board_file in board_files:
             dashboard = parse_dashboard(board_file)
@@ -300,6 +307,8 @@ def metrics_dashboards(path, output="console"):
             logging.error("No dashboards found at given path!")
     else:
         sum_metrics = {"nodes": [], "links": []}
+        if board_files == None:
+            return sum_metrics
         for board_file in board_files:
             dashboard = parse_dashboard(board_file)
             board_metrics = data_dashboard_metrics(dashboard)
