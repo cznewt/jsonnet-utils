@@ -6,7 +6,7 @@ import _jsonnet
 import logging
 import subprocess
 from .prometheus_rule import metrics_rules
-from .utils import search_prometheus_metrics
+from .utils import search_prometheus_metrics, is_debug_active
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
@@ -79,7 +79,7 @@ GRAPH_BUILDER_DASHBOARD = """
 def print_dashboard_info(dashboard):
     output = [""]
     output.append(
-        "\n### Dashboard {} (schema: {}, {})\n".format(
+        "## Dashboard {} (schema: {}, file: {})\n".format(
             dashboard.get("title", "N/A"),
             dashboard.get("schemaVersion", "N/A"),
             dashboard.get("_filename"),
@@ -97,15 +97,24 @@ def print_dashboard_info(dashboard):
     # output.append("    items:")
 
     for panel in dashboard.get("_panels", []):
-        output.append("\n#### Panel {} ({})\n".format(panel["title"], panel["type"]))
+        panel_line = "* {} ({}): ".format(
+            panel.get("title", "N/A"), panel.get("type", "N/A")
+        )
+        panel_metrics = []
         for target in panel["targets"]:
             if "expr" in target:
-                output.append(
-                    "* **{}**: {}".format(
-                        "**, **".join(search_prometheus_metrics(target["expr"])),
-                        target["expr"],
+                if is_debug_active():
+                    output.append(
+                        "* **{}**: {}".format(
+                            "**, **".join(search_prometheus_metrics(target["expr"])),
+                            target["expr"].replace("\n", " "),
+                        )
                     )
-                )
+                else:
+                    panel_metrics = panel_metrics + search_prometheus_metrics(
+                        target["expr"]
+                    )
+        output.append(panel_line + ", ".join(panel_metrics))
     return "\n".join(output)
 
 
@@ -264,8 +273,8 @@ def parse_dashboard(board_file):
         dashboard["_filename"] = os.path.basename(board_file)
         dashboard["_panels"] = panels
         return dashboard
-    for row in dashboard.get("panels", []):
-        for panel in row.get("panels", []):
+    for panel in dashboard.get("panels", []):
+        if "targets" in panel:
             panels.append(panel)
     if dashboard.get("rows", []) == None:
         logging.error("Dashboard {} has Null row".format(board_file))
@@ -303,6 +312,7 @@ def metrics_dashboards(path, output="console"):
             sum_metrics += board_metrics
         if len(board_files) > 0:
             sum_metrics = sorted(list(set(sum_metrics)))
+            logging.info(sum_metrics)
         else:
             logging.error("No dashboards found at path {}!".format(path))
     else:

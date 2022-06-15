@@ -1,6 +1,7 @@
 import yaml
 import re
 import logging
+import os
 
 split_keywords = [
     " / ",
@@ -168,6 +169,14 @@ def clean_comments(query):
             output_lines.append(line)
     return " ".join(output_lines)
 
+def is_debug_active():
+
+    debug = os.environ.get("DEBUG", False)
+    if debug.lower() == 'false' or debug == 0:
+        debug = False
+    if debug != False:
+        debug = True
+    return debug
 
 def search_prometheus_metrics(orig_query):
     query = clean_comments(orig_query)
@@ -223,6 +232,6 @@ def search_prometheus_metrics(orig_query):
 
     output = list(set(final_queries))
 
-    logging.debug("Parsed query: {}".format(orig_query))
+    #logging.debug("Parsed query: {}".format(orig_query))
     logging.debug("Found metrics: {}".format(output))
     return output

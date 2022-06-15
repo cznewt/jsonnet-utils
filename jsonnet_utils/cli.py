@@ -14,6 +14,8 @@ from .grafana_dashboard import (
 )
 from .prometheus_rule import convert_rules, metrics_rules, info_rules
 
+from .utils import is_debug_active
+
 logging.basicConfig(
     format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
     level=logging.INFO,
@@ -21,11 +23,14 @@ logging.basicConfig(
 )
 
 
-def set_logger(debug):
+def set_logger():
+    debug = is_debug_active()
     if debug:
         logging.getLogger().setLevel(logging.DEBUG)
+        logging.info("Setting logging to DEBUG level...")
     else:
         logging.getLogger().setLevel(logging.INFO)
+        logging.info("Setting logging to INFO level...")
 
 
 @click.command()
@@ -49,13 +54,12 @@ def set_logger(debug):
     default="rows",
     help="Format of the dashboard: `normal` (scheme 14) , `grid` (scheme 16).",
 )
-@click.option("--debug", default=False, help="Debug mode.")
-def dashboard_convert(source_path, build_path, format, layout, debug):
+def dashboard_convert(source_path, build_path, format, layout):
     """Convert JSON dashboards to JSONNET format."""
     logging.info(
         "Searching path `{}` for JSON dashboards to convert ...".format(source_path)
     )
-    set_logger(debug)
+    set_logger()
     convert_dashboards(source_path, build_path, format, layout)
 
 
@@ -73,36 +77,33 @@ def dashboard_convert(source_path, build_path, format, layout, debug):
     default="rows",
     help="Format of the dashboard: `normal` (scheme 14) , `grid` (scheme 16).",
 )
-@click.option("--debug", default=False, help="Debug mode.")
-def dashboard_test(path, scheme, layout, debug):
+def dashboard_test(path, scheme, layout):
     """Test JSONNET formatted dashboards."""
-    logging.info("Searching path `{}` for JSON dashboards to test ...".format(path))
-    set_logger(debug)
+    logging.info("Searching path `{}` for JSON dashboards...".format(path))
+    set_logger()
     test_dashboards(path)
 
 
 @click.command()
-@click.option("--debug", default=False, help="Debug mode.")
 @click.option(
     "--path", default="./data", help="Path to search for the source JSON dashboards."
 )
 def dashboard_info(path):
     """Get info from Grafana JSON dashboards."""
     logging.info(
-        "Searching path `{}` for JSON dashboards for detailed info ...".format(path)
+        "Searching path `{}` for JSON dashboards...".format(path)
     )
-    info_dashboards(path)
+    print(info_dashboards(path))
 
 
 @click.command()
 @click.option(
     "--path", default="./data", help="Path to search for the JSON dashboards."
 )
-@click.option("--debug", default=False, help="Debug mode.")
-def dashboard_metrics(path, debug):
+def dashboard_metrics(path):
     """Get metric names from Grafana JSON dashboard targets."""
-    logging.info("Searching path `{}` for JSON dashboards for metrics ...".format(path))
-    set_logger(debug)
+    logging.info("Searching path `{}` for JSON dashboards...".format(path))
+    set_logger()
     metrics_dashboards(path)
 
 
@@ -117,9 +118,8 @@ def dashboard_metrics(path, debug):
     default="./data/prometheus",
     help="Path to search for the Prometheus YAML rules.",
 )
-@click.option("--debug", default=False, help="Debug mode.")
 @click.option("--output", default="console", help="Type of output [console/json]")
-def all_metrics(dashboard_path, rules_path, output, debug):
+def all_metrics(dashboard_path, rules_path, output):
     """Get metric names from Grafana JSON dashboard targets and Prometheus rules."""
     logging.info(
         "Searching path `{}` for JSON dashboards for metrics ...".format(dashboard_path)
@@ -127,7 +127,7 @@ def all_metrics(dashboard_path, rules_path, output, debug):
     logging.info(
         "Searching path `{}` for YAML rules for metrics ...".format(rules_path)
     )
-    set_logger(debug)
+    set_logger()
     metrics_all(dashboard_path, rules_path, output)
 
 
@@ -135,15 +135,14 @@ def all_metrics(dashboard_path, rules_path, output, debug):
 @click.option(
     "--path", default="./data", help="Path to search for the YAML rule definions."
 )
-@click.option("--debug", default=False, help="Debug mode.")
-def rule_info(path, debug):
+def rule_info(path):
     """Get detailed info from Prometheus rule targets."""
     logging.info(
         "Searching path `{}` for YAML rule definitions for detailed info ...".format(
             path
         )
     )
-    set_logger(debug)
+    set_logger()
     info_rules(path)
 
 
@@ -151,13 +150,12 @@ def rule_info(path, debug):
 @click.option(
     "--path", default="./data", help="Path to search for the YAML rule definions."
 )
-@click.option("--debug", default=False, help="Debug mode.")
-def rule_metrics(path, debug):
+def rule_metrics(path):
     """Get metric names from Prometheus rule targets."""
     logging.info(
         "Searching path `{}` for YAML rule definitions for metrics ...".format(path)
     )
-    set_logger(debug)
+    set_logger()
     metrics_rules(path)
 
 
@@ -172,13 +170,12 @@ def rule_metrics(path, debug):
     default="",
     help="Path to save converted JSONNET rules, none to print to console.",
 )
-@click.option("--debug", default=False, help="Debug mode.")
-def rule_convert(source_path, build_path, debug):
+def rule_convert(source_path, build_path):
     """Convert Prometheus rule definitions to JSONNET format."""
     logging.info(
         "Searching path `{}` for YAML rule definitions to convert ...".format(
             source_path
         )
     )
-    set_logger(debug)
+    set_logger()
     convert_rules(source_path, build_path)

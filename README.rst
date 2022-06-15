@@ -6,7 +6,7 @@ jsonnet-utils
 Utility scripts to work with JSONNET and monitoring resource mixins.
 
 * Grafana dashboards
-* Prometheus alert and record rules
+* Prometheus alert and recording rules
 
 Commands
 ========
